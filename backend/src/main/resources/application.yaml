@@ -1,3 +1,18 @@
 spring:
   application:
-    name: backend
+    name: backend           # 애플리케이션 이름 (로그, 모니터링 식별용)
+
+  datasource:
+    url: ${DB_URL}          # Render PostgreSQL 접속 URL (환경변수)
+    username: ${DB_USERNAME} # DB 계정명 (환경변수)
+    password: ${DB_PASSWORD} # DB 비밀번호 (환경변수)
+    driver-class-name: org.postgresql.Driver # PostgreSQL JDBC 드라이버
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect  # PostgreSQL 명시
+    hibernate:
+      ddl-auto: update      # 엔티티 변경 시 테이블 자동 반영 (개발 단계용)
+    show-sql: true          # 실행되는 SQL을 콘솔에 출력 (디버깅용)
+    properties:
+      hibernate:
+        format_sql: true    # 출력되는 SQL을 보기 좋게 포맷팅
