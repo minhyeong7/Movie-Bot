@@ -1,24 +1,73 @@
-import { useState } from "react";
-import { apiFetch } from "./api/test";
+import { useEffect, useState } from "react";
+import { getMembers, createMember } from "./api/member";
 
 function App() {
-  const [text, setText] = useState("");
+  const [members, setMembers] = useState([]);
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    age: "",
+  });
 
-  const send = async () => {
-    await apiFetch("/api/test", {
-      method: "POST",
-      body: JSON.stringify({ content: text }),
-    });
-    alert("전송 완료");
+  // 전체 조회
+  const loadMembers = async () => {
+    const data = await getMembers();
+    setMembers(data);
   };
 
+  // 저장
+  const save = async () => {
+    await createMember({
+      name: form.name,
+      email: form.email,
+      age: Number(form.age),
+    });
+
+    setForm({ name: "", email: "", age: "" });
+    loadMembers();
+  };
+
+  useEffect(() => {
+    loadMembers();
+  }, []);
+
   return (
-    <div>
+    <div style={{ padding: 20 }}>
+      <h2>회원 등록</h2>
+
       <input
-        value={text}
-        onChange={(e) => setText(e.target.value)}
+        placeholder="이름"
+        value={form.name}
+        onChange={(e) => setForm({ ...form, name: e.target.value })}
       />
-      <button onClick={send}>저장</button>
+      <br />
+
+      <input
+        placeholder="이메일"
+        value={form.email}
+        onChange={(e) => setForm({ ...form, email: e.target.value })}
+      />
+      <br />
+
+      <input
+        placeholder="나이"
+        value={form.age}
+        onChange={(e) => setForm({ ...form, age: e.target.value })}
+      />
+      <br />
+
+      <button onClick={save}>저장</button>
+
+      <hr />
+
+      <h2>회원 목록</h2>
+      <ul>
+        {members.map((m) => (
+          <li key={m.id}>
+            {m.name} / {m.email} / {m.age}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
