@@ -3,7 +3,7 @@ spring:
     name: backend           # 애플리케이션 이름 (로그, 모니터링 식별용)
 
   datasource:
-    url: ${DB_URL}          # Render PostgreSQL 접속 URL (환경변수)
+    url: ${DB_URL}        # Render PostgreSQL 접속 URL (환경변수)
     username: ${DB_USERNAME} # DB 계정명 (환경변수)
     password: ${DB_PASSWORD} # DB 비밀번호 (환경변수)
     driver-class-name: org.postgresql.Driver # PostgreSQL JDBC 드라이버

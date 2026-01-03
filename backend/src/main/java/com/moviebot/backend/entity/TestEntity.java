@@ -1,4 +1,4 @@
-package com.moviebot.backend;
+package com.moviebot.backend.entity;
 
 import jakarta.persistence.*;
 
