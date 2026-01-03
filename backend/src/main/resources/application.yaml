@@ -16,3 +16,6 @@ spring:
     properties:
       hibernate:
         format_sql: true    # 출력되는 SQL을 보기 좋게 포맷팅
+
+server:
+  port: 8080
