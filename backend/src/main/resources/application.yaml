@@ -17,5 +17,9 @@ spring:
       hibernate:
         format_sql: true    # 출력되는 SQL을 보기 좋게 포맷팅
 
+logging:
+  level:
+    org.hibernate.orm.jdbc.bind: trace
+
 server:
   port: 8080
