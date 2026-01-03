@@ -10,8 +10,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/test")
-@CrossOrigin(origins = "http://localhost:5173")
-
 public class TestController {
 
     private final TestMessageRepository repository;
