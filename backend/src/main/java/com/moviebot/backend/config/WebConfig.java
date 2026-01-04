@@ -11,8 +11,8 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins(
-                        "http://localhost:5173"
-//                        "https://movie-bot-6kor.onrender.com"
+                        "http://localhost:5173", // 로컬 주소 허용
+                        "https://movie-bot-six-khaki.vercel.app" // 프론트 버셀 주소 허용
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*");
