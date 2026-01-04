@@ -1,6 +1,4 @@
 
-// 배포용
-// export const BASE_URL = "https://movie-bot-6kor.onrender.com";
+// env 
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// 로컬용
-export const BASE_URL ="http://localhost:8080"
