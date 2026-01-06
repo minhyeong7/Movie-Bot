@@ -29,3 +29,7 @@ server:
 
 openai:
   api-key: ${gpt_api}
+
+tmdb:
+  api-key: ${tmdb_api}
+  base-url: ${tmdb_url}
