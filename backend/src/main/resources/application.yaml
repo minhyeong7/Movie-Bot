@@ -1,4 +1,7 @@
 spring:
+  config:
+    import: optional:file:.env[.properties] # @value anotaion을 사용하기 위해 env 파일 읽기위함
+
   application:
     name: backend           # 애플리케이션 이름 (로그, 모니터링 식별용)
 
@@ -23,3 +26,6 @@ logging:
 
 server:
   port: 8080
+
+openai:
+  api-key: ${gpt_api}
