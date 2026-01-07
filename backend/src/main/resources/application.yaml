@@ -23,8 +23,7 @@ logging:
   level:
     org.hibernate.orm.jdbc.bind: trace
 
-server:
-  port: 8080
+
 
 openai:
   api-key: ${gpt_api}
