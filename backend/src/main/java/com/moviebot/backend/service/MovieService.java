@@ -1,13 +1,15 @@
 package com.moviebot.backend.service;
 
-import com.moviebot.backend.dto.request.MovieCreateRequest;
-import com.moviebot.backend.dto.response.MovieResponse;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.moviebot.backend.entity.Movie;
 import com.moviebot.backend.repository.MovieRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -15,33 +17,44 @@ import java.util.List;
 public class MovieService {
 
     private final MovieRepository movieRepository;
+    private final TmdbService tmdbService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // 가장 많이 추천된 영화 목록
-    @Transactional(readOnly = true)
-    public List<MovieResponse> getMostRecommendedMovies() {
-        return movieRepository.findTop10ByOrderByRecommendCountDesc()
-                .stream()
-                .map(MovieResponse::from)
-                .toList();
+    // TOP10 조회 (TMDB + DB recommendCount 병합)
+    public List<JsonNode> getTop10RecommendedMovies() {
+        List<Movie> movies = movieRepository.findTop10ByOrderByRecommendCountDesc();
+        List<JsonNode> result = new ArrayList<>();
+
+        for (Movie movie : movies) {
+            try {
+                String json = tmdbService.searchMovieTop1ByTitle(movie.getTitle());
+                if (json == null) continue;
+
+                JsonNode root = objectMapper.readTree(json);
+                JsonNode results = root.path("results");
+
+                if (results.isArray() && results.size() > 0 && results.get(0).isObject()) {
+                    ObjectNode movieNode =
+                            ((ObjectNode) results.get(0)).deepCopy();
+
+                    //  DB 추천 수 주입
+                    movieNode.put("recommendCount", movie.getRecommendCount());
+
+                    result.add(movieNode);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
     }
 
     // 추천 수 증가
     @Transactional
-    public void increaseRecommendCount(List<Long> movieIds) {
-        List<Movie> movies = movieRepository.findAllById(movieIds);
-        for (Movie movie : movies) {
-            movie.increaseRecommendCount();
-        }
-    }
+    public void increaseRecommendCount(String title) {
+        Movie movie = movieRepository.findByTitle(title)
+                .orElseThrow(() -> new IllegalArgumentException("영화 없음"));
 
-    // 신규 영화 등록
-    @Transactional
-    public void createMovie(MovieCreateRequest request) {
-        Movie movie = new Movie(
-                request.getTitle(),
-                request.getOverview(),
-                request.getPosterPath()
-        );
-        movieRepository.save(movie);
+        movie.increaseRecommendCount();
     }
 }

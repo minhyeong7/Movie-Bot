@@ -1,8 +1,6 @@
 package com.moviebot.backend.controller;
 
-import com.moviebot.backend.dto.request.MovieCreateRequest;
-import com.moviebot.backend.dto.response.MovieResponse;
-import com.moviebot.backend.entity.Movie;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.moviebot.backend.service.MovieService;
 import com.moviebot.backend.service.TmdbService;
 import lombok.RequiredArgsConstructor;
@@ -32,21 +30,23 @@ public class MovieController {
         return tmdbService.getMovieDetail(movieId);
     }
 
-    // 가장 많이 추천된 영화 TOP 10
-    @GetMapping("/top")
-    public List<MovieResponse> getTopMovies() {
-        return movieService.getMostRecommendedMovies();
+    // TOP10 조회
+    @GetMapping("/top10")
+    public List<JsonNode> top10() {
+        return movieService.getTop10RecommendedMovies();
     }
 
-    // 추천 수 증가 (챗봇 호출용)
+    // 추천 수 증가
     @PostMapping("/recommend")
-    public void increaseRecommend(@RequestBody List<Long> movieIds) {
-        movieService.increaseRecommendCount(movieIds);
+    public void recommend(@RequestParam String title) {
+        movieService.increaseRecommendCount(title);
     }
 
-    // 신규 영화 등록
-    @PostMapping
-    public void createMovie(@RequestBody MovieCreateRequest request) {
-        movieService.createMovie(request);
+
+    // 영화 검색
+    @GetMapping("/search")
+    public ResponseEntity<String> searchMovies(@RequestParam String keyword) {
+        return ResponseEntity.ok(tmdbService.searchMovies(keyword));
     }
+
 }

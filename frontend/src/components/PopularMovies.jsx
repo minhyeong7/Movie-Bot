@@ -47,23 +47,32 @@ export default function PopularMovies() {
   const syncIndexFromScroll = useCallback(() => {
     const track = trackRef.current;
     if (!track || !step) return;
+
     const next = Math.round(track.scrollLeft / step);
     setIndex(Math.max(0, Math.min(maxIndex, next)));
   }, [maxIndex, step]);
 
+  /* ===================== 이벤트 바인딩 ===================== */
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
 
     track.addEventListener("scroll", syncIndexFromScroll, { passive: true });
 
-    // 마우스 휠 가로 스크롤 방지
-    const preventWheel = (e) => e.preventDefault();
-    track.addEventListener("wheel", preventWheel, { passive: false });
+    //  핵심 수정 부분
+    // 세로 스크롤(deltaY)은 허용 → 페이지 스크롤 정상
+    // 가로 스크롤(deltaX)만 캐러셀에서 제어
+    const handleWheel = (e) => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        e.preventDefault();
+      }
+    };
+
+    track.addEventListener("wheel", handleWheel, { passive: false });
 
     return () => {
       track.removeEventListener("scroll", syncIndexFromScroll);
-      track.removeEventListener("wheel", preventWheel);
+      track.removeEventListener("wheel", handleWheel);
     };
   }, [syncIndexFromScroll]);
 
@@ -79,7 +88,7 @@ export default function PopularMovies() {
 
   /* ===================== 별점 렌더 ===================== */
   const renderStars = (vote) => {
-    const rating = Math.round(vote) / 2; // 10점 → 5점
+    const rating = Math.round(vote) / 2;
     const full = Math.floor(rating);
     const half = rating % 1 >= 0.5;
     const empty = 5 - full - (half ? 1 : 0);
@@ -124,23 +133,19 @@ export default function PopularMovies() {
                     style={{ width: cardW }}
                   >
                     <Link to={`/movies/${movie.id}`}>
-                      {/* 포스터 */}
                       <img
                         src={`${IMAGE_BASE_URL}${movie.poster_path}`}
                         alt={movie.title}
                         className="w-full h-56 object-cover"
                       />
 
-                      {/* 정보 */}
                       <div className="p-3 space-y-1">
                         <h2 className="text-sm font-semibold truncate">
                           {movie.title}
                         </h2>
 
-                        {/* 별점 */}
                         {renderStars(movie.vote_average)}
 
-                        {/* 설명 */}
                         <p className="text-xs text-gray-400 line-clamp-2">
                           {movie.overview || "줄거리 정보가 없습니다."}
                         </p>
@@ -157,8 +162,7 @@ export default function PopularMovies() {
             onClick={() => goTo(index - 1)}
             disabled={index === 0}
             className="absolute left-0 top-1/2 -translate-y-1/2
-                       text-red-600 text-2xl px-2
-                       disabled:opacity-30"
+                       text-red-600 text-2xl px-2 disabled:opacity-30"
           >
             ◀
           </button>
@@ -168,8 +172,7 @@ export default function PopularMovies() {
             onClick={() => goTo(index + 1)}
             disabled={index === maxIndex}
             className="absolute right-0 top-1/2 -translate-y-1/2
-                       text-red-600 text-2xl px-2
-                       disabled:opacity-30"
+                       text-red-600 text-2xl px-2 disabled:opacity-30"
           >
             ▶
           </button>

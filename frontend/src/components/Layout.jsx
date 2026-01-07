@@ -1,6 +1,6 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, Outlet } from "react-router-dom";
 
-export default function Layout({ children }) {
+export default function Layout() {
   const { pathname } = useLocation();
 
   const isActive = (path) =>
@@ -24,18 +24,17 @@ export default function Layout({ children }) {
           {/* 네비게이션 */}
           <nav className="flex items-center gap-6">
             <Link
-              to="/movies"
-              className={`text-sm pb-1 transition ${isActive("/movies")}`}
+              
+               className="px-5 py-2 bg-red-600 rounded text-sm font-semibold hover:bg-red-700 transition"
             >
-              인기영화
+              로그인
             </Link>
 
             <Link
               to="/chat"
-              className="ml-4 px-4 py-1.5 bg-red-600 text-sm font-semibold
-                         hover:bg-red-700 transition"
+               className="px-5 py-2 bg-red-600 rounded text-sm font-semibold hover:bg-red-700 transition"
             >
-              챗봇
+              무비봇
             </Link>
           </nav>
         </div>
@@ -43,7 +42,7 @@ export default function Layout({ children }) {
 
       {/* 페이지 콘텐츠 */}
       <main className="pt-20 px-6">
-        {children}
+        <Outlet />
       </main>
     </div>
   );

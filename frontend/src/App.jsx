@@ -1,27 +1,26 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import MainPage from "./pages/MainPage";
 import ChatPage from "./pages/ChatPage";
 import MovieDetail from "./components/MovieDetail";
+import MovieSearchPage from "./pages/MovieSearchPage";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   return (
     <BrowserRouter>
-      <Layout>
-        <Routes>
-          {/* 기본 진입 */}
-          <Route path="/" element={<Navigate to="/movies" />} />
+      <Routes>
+        {/*  랜딩 페이지 (Layout 없음) */}
+        <Route path="/" element={<LandingPage />} />
 
-          {/* 영화 목록 */}
+        {/*  Layout이 필요한 페이지들 */}
+        <Route element={<Layout />}>
           <Route path="/movies" element={<MainPage />} />
-
-          {/* 영화 상세 */}
-          <Route path="/movies/:id" element={<MovieDetail/>} />
-
-          {/* 챗봇 */}
+          <Route path="/movies/:id" element={<MovieDetail />} />
           <Route path="/chat" element={<ChatPage />} />
-        </Routes>
-      </Layout>
+          <Route path="/search" element={<MovieSearchPage />} />
+        </Route>
+      </Routes>
     </BrowserRouter>
   );
 }

@@ -47,19 +47,26 @@ export default function RecommendedMovies() {
     setIndex(Math.max(0, Math.min(maxIndex, next)));
   }, [maxIndex, step]);
 
-  useEffect(() => {
+ useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
 
     track.addEventListener("scroll", syncIndexFromScroll, { passive: true });
 
-    // 마우스 휠 스크롤 방지
-    const preventWheel = (e) => e.preventDefault();
-    track.addEventListener("wheel", preventWheel, { passive: false });
+    //  핵심 수정 부분
+    // 세로 스크롤(deltaY)은 허용 → 페이지 스크롤 정상
+    // 가로 스크롤(deltaX)만 캐러셀에서 제어
+    const handleWheel = (e) => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        e.preventDefault();
+      }
+    };
+
+    track.addEventListener("wheel", handleWheel, { passive: false });
 
     return () => {
       track.removeEventListener("scroll", syncIndexFromScroll);
-      track.removeEventListener("wheel", preventWheel);
+      track.removeEventListener("wheel", handleWheel);
     };
   }, [syncIndexFromScroll]);
 
@@ -71,9 +78,8 @@ export default function RecommendedMovies() {
     track.scrollTo({ left: clamped * step, behavior: "smooth" });
   };
 
-  /* ===================== 별점 렌더 ===================== */
   const renderStars = (vote) => {
-    const rating = Math.round(vote) / 2; // 10점 → 5점
+    const rating = Math.round(vote) / 2;
     const full = Math.floor(rating);
     const half = rating % 1 >= 0.5;
     const empty = 5 - full - (half ? 1 : 0);
@@ -94,11 +100,10 @@ export default function RecommendedMovies() {
   return (
     <section className="bg-black text-white py-8">
       <div className="max-w-6xl mx-auto px-6">
-        {/* 타이틀 */}
         <div className="flex items-center mb-4">
           <div className="w-1 h-6 bg-red-600 mr-3" />
           <h2 className="text-xl font-bold tracking-wide">
-            챗봇 추천 영화 TOP 10
+            무비봇 가장 많이 추천된 영화 TOP 10
           </h2>
         </div>
 
@@ -117,17 +122,18 @@ export default function RecommendedMovies() {
                                hover:scale-105 transition-transform duration-200"
                     style={{ width: cardW }}
                   >
-                    {/* ⭐ 인기영화 TOP10과 동일하게 상세 페이지 이동 */}
                     <Link to={`/movies/${movie.id}`}>
-                      {/* 포스터 */}
                       <img
-                        src={`${IMAGE_BASE_URL}${movie.posterPath}`}
+                        src={
+                          movie.poster_path
+                            ? `${IMAGE_BASE_URL}${movie.poster_path}`
+                            : "/no-poster.png"
+                        }
                         alt={movie.title}
                         className="w-full h-56 object-cover"
                         loading="lazy"
                       />
 
-                      {/* 정보 */}
                       <div className="p-3 space-y-1">
                         <p className="text-xs text-red-500 font-semibold">
                           TOP {idx + 1}
@@ -137,15 +143,12 @@ export default function RecommendedMovies() {
                           {movie.title}
                         </h3>
 
-                        {/* 별점 */}
                         {renderStars(movie.vote_average)}
 
-                        {/* 설명 */}
                         <p className="text-xs text-gray-400 line-clamp-2">
                           {movie.overview}
                         </p>
 
-                        {/* 추천 수 배지 */}
                         <div className="mt-2">
                           <span
                             className="inline-block text-xs font-semibold
@@ -164,24 +167,20 @@ export default function RecommendedMovies() {
             </div>
           </div>
 
-          {/* 좌 버튼 */}
           <button
             onClick={() => goTo(index - 1)}
             disabled={index === 0}
             className="absolute left-0 top-1/2 -translate-y-1/2
-                       text-red-600 text-2xl px-2
-                       disabled:opacity-30"
+                       text-red-600 text-2xl px-2 disabled:opacity-30"
           >
             ◀
           </button>
 
-          {/* 우 버튼 */}
           <button
             onClick={() => goTo(index + 1)}
             disabled={index === maxIndex}
             className="absolute right-0 top-1/2 -translate-y-1/2
-                       text-red-600 text-2xl px-2
-                       disabled:opacity-30"
+                       text-red-600 text-2xl px-2 disabled:opacity-30"
           >
             ▶
           </button>

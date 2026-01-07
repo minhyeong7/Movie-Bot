@@ -1,3 +1,4 @@
+import MovieSearch from "../components/MovieSearch";
 import PopularMovies from "../components/PopularMovies";
 import RecommendedMovies from "../components/RecommendedMovies";
 
@@ -5,6 +6,9 @@ import RecommendedMovies from "../components/RecommendedMovies";
 export default function MainPage() {
   return (
     <div className="flex flex-col gap-12">
+
+      <MovieSearch />
+      
       {/* 기존 인기 영화 (TMDB 기준 등) */}
       <PopularMovies />
 

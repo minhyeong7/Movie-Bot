@@ -11,6 +11,25 @@ export default function MovieDetail() {
     fetchMovieDetail(id).then(setMovie);
   }, [id]);
 
+  // ⭐ 별점 렌더링 함수 (5점 만점)
+  const renderStars = (score) => {
+    const filled = Math.floor(score);
+    const empty = 5 - filled;
+
+    return (
+      <div className="flex items-center gap-1 text-red-500 text-xl">
+        {Array.from({ length: filled }).map((_, i) => (
+          <span key={`f-${i}`}>★</span>
+        ))}
+        {Array.from({ length: empty }).map((_, i) => (
+          <span key={`e-${i}`} className="text-gray-600">
+            ☆
+          </span>
+        ))}
+      </div>
+    );
+  };
+
   if (!movie) {
     return (
       <div className="min-h-screen bg-black text-white px-6 py-10">
@@ -40,19 +59,21 @@ export default function MovieDetail() {
         {/* 뒤로가기 */}
         <Link
           to="/movies"
-          className="text-sm text-gray-400 hover:text-white transition"
+          className="text-md text-gray-400 hover:text-white transition font-semibold"
         >
           ← 목록으로
         </Link>
 
         {/* 상단 정보 */}
         <div className="flex gap-10 mt-10">
+          {/* 포스터 */}
           <img
             src={`${IMAGE_BASE_URL}${movie.poster_path}`}
             alt={movie.title}
             className="w-64 rounded-lg shadow-2xl"
           />
 
+          {/* 텍스트 정보 */}
           <div className="flex-1">
             <h1 className="text-4xl font-extrabold tracking-wide">
               {movie.title}
@@ -68,14 +89,20 @@ export default function MovieDetail() {
               )}
             </div>
 
-            <div className="mt-4 text-red-600 font-semibold">
-              평점 {movie.vote_average}
+            {/*  평점 */}
+            <div className="mt-4 flex items-center gap-3">
+              {renderStars(movie.vote_average / 2)}
+              <span className="text-sm text-gray-400">
+                {movie.vote_average.toFixed(1)} / 10
+              </span>
             </div>
 
+            {/* 줄거리 */}
             <p className="mt-6 leading-relaxed text-gray-200">
               {movie.overview}
             </p>
 
+            {/* 기타 정보 */}
             <div className="mt-6 space-y-2 text-sm text-gray-300">
               <p>
                 <span className="text-gray-500 mr-2">장르</span>
@@ -99,7 +126,7 @@ export default function MovieDetail() {
               <h2 className="text-2xl font-bold">출연진</h2>
             </div>
 
-            <div className="flex gap-6 overflow-x-auto">
+            <div className="flex gap-6 overflow-x-auto pb-2">
               {cast.map((actor) => (
                 <div key={actor.id} className="w-28 flex-shrink-0">
                   {actor.profile_path && (

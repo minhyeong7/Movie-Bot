@@ -45,5 +45,33 @@ public class TmdbService {
         return restTemplate.getForObject(url, String.class);
     }
 
+    //  영화 검색
+    public String searchMovies(String keyword) {
+        String url = UriComponentsBuilder
+                .fromHttpUrl(baseUrl + "/search/movie")
+                .queryParam("api_key", apiKey)
+                .queryParam("language", "ko-KR")
+                .queryParam("query", keyword)
+                .toUriString();
+
+        return restTemplate.getForObject(url, String.class);
+    }
+
+    // 제목으로 영화 검색 (TMDB search/movie)
+    public String searchMovieTop1ByTitle(String title) {
+        String url = UriComponentsBuilder
+                .fromHttpUrl(baseUrl + "/search/movie")
+                .queryParam("api_key", apiKey)
+                .queryParam("language", "ko-KR")
+                .queryParam("query", title)
+                .toUriString();
+
+        return restTemplate.getForObject(url, String.class);
+    }
+
+
+
+
+
 }
 
