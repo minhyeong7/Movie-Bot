@@ -1,17 +1,27 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import MovieList from "./pages/MovieList";
-import MovieChat from "./pages/MovieChat";
+import Layout from "./components/Layout";
+import MainPage from "./pages/MainPage";
+import ChatPage from "./pages/ChatPage";
+import MovieDetail from "./components/MovieDetail";
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* 기본 진입 시 영화 목록 */}
-        <Route path="/" element={<Navigate to="/movies" />} />
+      <Layout>
+        <Routes>
+          {/* 기본 진입 */}
+          <Route path="/" element={<Navigate to="/movies" />} />
 
-        <Route path="/movies" element={<MovieList />} />
-        <Route path="/chat" element={<MovieChat />} />
-      </Routes>
+          {/* 영화 목록 */}
+          <Route path="/movies" element={<MainPage />} />
+
+          {/* 영화 상세 */}
+          <Route path="/movies/:id" element={<MovieDetail/>} />
+
+          {/* 챗봇 */}
+          <Route path="/chat" element={<ChatPage />} />
+        </Routes>
+      </Layout>
     </BrowserRouter>
   );
 }

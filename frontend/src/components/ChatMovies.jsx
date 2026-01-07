@@ -1,7 +1,7 @@
-// src/pages/MovieChat.jsx
+
 import { Link } from "react-router-dom";
 
-export default function MovieChat() {
+export default function ChatMovies() {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
       <div className="max-w-3xl mx-auto">
