@@ -19,12 +19,23 @@ public class TmdbService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
+    // 최신 인기영화 TOP10
     public String getPopularTop10() {
         String url = UriComponentsBuilder
                 .fromHttpUrl(baseUrl + "/movie/popular")
                 .queryParam("api_key", apiKey)
                 .queryParam("language", "ko-KR")
                 .queryParam("page", 1)
+                .toUriString();
+
+        return restTemplate.getForObject(url, String.class);
+    }
+    // 최신 인기영화 상세 조회
+    public String getMovieDetail(Long movieId) {
+        String url = UriComponentsBuilder
+                .fromHttpUrl(baseUrl + "/movie/" + movieId)
+                .queryParam("api_key", apiKey)
+                .queryParam("language", "ko-KR")
                 .toUriString();
 
         return restTemplate.getForObject(url, String.class);

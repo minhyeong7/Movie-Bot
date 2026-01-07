@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface MovieRepository extends JpaRepository<Movie, Long> {
-    List<Movie> findTop3ByGenreOrderByCreatedAtDesc(String genre);
+
+    // 추천 수 기준 상위 10개 영화 조회
+    List<Movie> findTop10ByOrderByRecommendCountDesc();
 }
