@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { fetchTopMovies } from "../api/movieApi";
 import { IMAGE_BASE_URL } from "../api/header";
+import { Link } from "react-router-dom";
 
 export default function RecommendedMovies() {
   const [movies, setMovies] = useState([]);
@@ -8,9 +9,8 @@ export default function RecommendedMovies() {
   const viewportRef = useRef(null);
   const trackRef = useRef(null);
 
-  const VISIBLE = 5;      // 화면에 딱 5개
-  const GAP = 16;         // gap-4 = 16px
-  const SIDE_PAD = 48;    // 좌우 버튼 공간
+  const VISIBLE = 5;
+  const GAP = 16;
 
   const [cardW, setCardW] = useState(0);
   const [index, setIndex] = useState(0);
@@ -19,16 +19,15 @@ export default function RecommendedMovies() {
     fetchTopMovies().then(setMovies);
   }, []);
 
-  const maxIndex = useMemo(() => {
-    return Math.max(0, movies.length - VISIBLE);
-  }, [movies.length]);
+  const maxIndex = useMemo(
+    () => Math.max(0, movies.length - VISIBLE),
+    [movies.length]
+  );
 
-  // viewport 크기 기준으로 카드 너비 계산
   useEffect(() => {
     if (!viewportRef.current) return;
 
     const el = viewportRef.current;
-
     const ro = new ResizeObserver(() => {
       const width = el.clientWidth;
       const w = (width - GAP * (VISIBLE - 1)) / VISIBLE;
@@ -44,7 +43,6 @@ export default function RecommendedMovies() {
   const syncIndexFromScroll = useCallback(() => {
     const track = trackRef.current;
     if (!track || !step) return;
-
     const next = Math.round(track.scrollLeft / step);
     setIndex(Math.max(0, Math.min(maxIndex, next)));
   }, [maxIndex, step]);
@@ -53,110 +51,142 @@ export default function RecommendedMovies() {
     const track = trackRef.current;
     if (!track) return;
 
-    const onScroll = () => syncIndexFromScroll();
-    track.addEventListener("scroll", onScroll, { passive: true });
-    return () => track.removeEventListener("scroll", onScroll);
+    track.addEventListener("scroll", syncIndexFromScroll, { passive: true });
+
+    // 마우스 휠 스크롤 방지
+    const preventWheel = (e) => e.preventDefault();
+    track.addEventListener("wheel", preventWheel, { passive: false });
+
+    return () => {
+      track.removeEventListener("scroll", syncIndexFromScroll);
+      track.removeEventListener("wheel", preventWheel);
+    };
   }, [syncIndexFromScroll]);
 
-  const goTo = useCallback(
-    (nextIndex) => {
-      const track = trackRef.current;
-      if (!track || !step) return;
+  const goTo = (i) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const clamped = Math.max(0, Math.min(maxIndex, i));
+    setIndex(clamped);
+    track.scrollTo({ left: clamped * step, behavior: "smooth" });
+  };
 
-      const clamped = Math.max(0, Math.min(maxIndex, nextIndex));
-      setIndex(clamped);
-      track.scrollTo({ left: clamped * step, behavior: "smooth" });
-    },
-    [maxIndex, step]
-  );
+  /* ===================== 별점 렌더 ===================== */
+  const renderStars = (vote) => {
+    const rating = Math.round(vote) / 2; // 10점 → 5점
+    const full = Math.floor(rating);
+    const half = rating % 1 >= 0.5;
+    const empty = 5 - full - (half ? 1 : 0);
 
-  const canLeft = index > 0;
-  const canRight = index < maxIndex;
+    return (
+      <div className="flex items-center gap-0.5">
+        {Array.from({ length: full }).map((_, i) => (
+          <span key={`f-${i}`} className="text-yellow-400 text-sm">★</span>
+        ))}
+        {half && <span className="text-yellow-400 text-sm">☆</span>}
+        {Array.from({ length: empty }).map((_, i) => (
+          <span key={`e-${i}`} className="text-gray-600 text-sm">★</span>
+        ))}
+      </div>
+    );
+  };
 
   return (
-    <div className="bg-gray-900 text-white px-6 py-10">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6">
-          챗봇 추천 영화 TOP 10
-        </h2>
+    <section className="bg-black text-white py-8">
+      <div className="max-w-6xl mx-auto px-6">
+        {/* 타이틀 */}
+        <div className="flex items-center mb-4">
+          <div className="w-1 h-6 bg-red-600 mr-3" />
+          <h2 className="text-xl font-bold tracking-wide">
+            챗봇 추천 영화 TOP 10
+          </h2>
+        </div>
 
         <div className="relative">
-          {/* 버튼 공간 확보 */}
-          <div className="px-12">
+          <div className="px-10">
             <div ref={viewportRef} className="overflow-hidden">
               <ul
                 ref={trackRef}
-                className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory
-                           [scrollbar-width:none] [-ms-overflow-style:none]
-                           [&::-webkit-scrollbar]:hidden"
+                className="flex gap-4 overflow-x-auto
+                           [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
                 {movies.map((movie, idx) => (
                   <li
                     key={movie.id}
-                    className="shrink-0 snap-start bg-gray-800 rounded overflow-hidden"
-                    style={{
-                      width: cardW ? `${cardW}px` : undefined,
-                    }}
+                    className="shrink-0 bg-zinc-900 rounded-md overflow-hidden
+                               hover:scale-105 transition-transform duration-200"
+                    style={{ width: cardW }}
                   >
-                    <img
-                      src={`${IMAGE_BASE_URL}${movie.posterPath}`}
-                      alt={movie.title}
-                      className="w-full h-64 object-cover"
-                      loading="lazy"
-                    />
+                    {/* ⭐ 인기영화 TOP10과 동일하게 상세 페이지 이동 */}
+                    <Link to={`/movies/${movie.id}`}>
+                      {/* 포스터 */}
+                      <img
+                        src={`${IMAGE_BASE_URL}${movie.posterPath}`}
+                        alt={movie.title}
+                        className="w-full h-56 object-cover"
+                        loading="lazy"
+                      />
 
-                    <div className="p-3">
-                      <p className="text-sm text-gray-400 mb-1">
-                        {idx + 1}위
-                      </p>
+                      {/* 정보 */}
+                      <div className="p-3 space-y-1">
+                        <p className="text-xs text-red-500 font-semibold">
+                          TOP {idx + 1}
+                        </p>
 
-                      <h3 className="text-sm font-semibold truncate">
-                        {movie.title}
-                      </h3>
+                        <h3 className="text-sm font-semibold truncate">
+                          {movie.title}
+                        </h3>
 
-                      <p className="text-xs text-gray-400 line-clamp-2 mt-1">
-                        {movie.overview}
-                      </p>
+                        {/* 별점 */}
+                        {renderStars(movie.vote_average)}
 
-                      <p className="text-xs text-gray-500 mt-2">
-                        추천 수 {movie.recommendCount}
-                      </p>
-                    </div>
+                        {/* 설명 */}
+                        <p className="text-xs text-gray-400 line-clamp-2">
+                          {movie.overview}
+                        </p>
+
+                        {/* 추천 수 배지 */}
+                        <div className="mt-2">
+                          <span
+                            className="inline-block text-xs font-semibold
+                                       px-2 py-0.5
+                                       bg-red-600/20 text-red-400
+                                       border border-red-600/40"
+                          >
+                            추천 {movie.recommendCount}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
                   </li>
                 ))}
               </ul>
             </div>
           </div>
 
-          {/* Left */}
+          {/* 좌 버튼 */}
           <button
-            type="button"
             onClick={() => goTo(index - 1)}
-            disabled={!canLeft}
-            aria-label="이전"
-            className={`absolute left-0 top-1/2 -translate-y-1/2
-                        h-10 w-10 rounded-full flex items-center justify-center
-                        bg-black/50 hover:bg-black/70 transition
-                        ${!canLeft ? "opacity-30 cursor-not-allowed" : ""}`}
+            disabled={index === 0}
+            className="absolute left-0 top-1/2 -translate-y-1/2
+                       text-red-600 text-2xl px-2
+                       disabled:opacity-30"
           >
-            ‹
+            ◀
           </button>
 
-          {/* Right */}
+          {/* 우 버튼 */}
           <button
-            type="button"
             onClick={() => goTo(index + 1)}
-            disabled={!canRight}
-            aria-label="다음"
-            className={`absolute right-0 top-1/2 -translate-y-1/2
-                        h-10 w-10 rounded-full flex items-center justify-center
-                        bg-black/50 hover:bg-black/70 transition
-                        ${!canRight ? "opacity-30 cursor-not-allowed" : ""}`}
+            disabled={index === maxIndex}
+            className="absolute right-0 top-1/2 -translate-y-1/2
+                       text-red-600 text-2xl px-2
+                       disabled:opacity-30"
           >
-            ›
+            ▶
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

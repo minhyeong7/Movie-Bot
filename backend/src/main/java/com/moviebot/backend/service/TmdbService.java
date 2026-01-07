@@ -36,9 +36,14 @@ public class TmdbService {
                 .fromHttpUrl(baseUrl + "/movie/" + movieId)
                 .queryParam("api_key", apiKey)
                 .queryParam("language", "ko-KR")
+                .queryParam(
+                        "append_to_response",
+                        "credits,videos,images,recommendations,release_dates"
+                )
                 .toUriString();
 
         return restTemplate.getForObject(url, String.class);
     }
+
 }
 

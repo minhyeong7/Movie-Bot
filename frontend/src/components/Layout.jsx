@@ -1,25 +1,39 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function Layout({ children }) {
+  const { pathname } = useLocation();
+
+  const isActive = (path) =>
+    pathname.startsWith(path)
+      ? "text-white border-b-2 border-red-600"
+      : "text-gray-400 hover:text-white";
+
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-black text-white">
       {/* 상단바 */}
-      <header className="bg-gray-800 border-b border-gray-700">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Link to="/movies" className="text-xl font-bold text-white">
-             MovieBot
+      <header className="fixed top-0 w-full z-20 bg-black/80 backdrop-blur border-b border-zinc-800">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex justify-between items-center">
+          {/* 로고 */}
+          <Link
+            to="/movies"
+            className="text-2xl font-extrabold tracking-wide text-red-600"
+          >
+            MOVIEBOT
           </Link>
 
-          <nav className="flex gap-4">
+          {/* 네비게이션 */}
+          <nav className="flex items-center gap-6">
             <Link
               to="/movies"
-              className="text-sm text-gray-300 hover:text-white transition"
+              className={`text-sm pb-1 transition ${isActive("/movies")}`}
             >
               인기영화
             </Link>
+
             <Link
               to="/chat"
-              className="px-3 py-1 bg-indigo-500 rounded text-sm hover:bg-indigo-600 transition"
+              className="ml-4 px-4 py-1.5 bg-red-600 text-sm font-semibold
+                         hover:bg-red-700 transition"
             >
               챗봇
             </Link>
@@ -28,7 +42,7 @@ export default function Layout({ children }) {
       </header>
 
       {/* 페이지 콘텐츠 */}
-      <main className="p-6">
+      <main className="pt-20 px-6">
         {children}
       </main>
     </div>
