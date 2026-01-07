@@ -2,11 +2,21 @@ package com.moviebot.backend.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
+
 import java.util.List;
 
 @Getter
 @Builder
 public class ChatResponse {
-    private String reply;              // GPT 설명 문구
-    private List<MovieResponse> movies; // 추천 영화 3개
+    private String assistantMessage; // "어때요?..."
+    private List<RecommendedMovie> movies;
+
+    @Getter
+    @Builder
+    public static class RecommendedMovie {
+        private Long tmdbId;
+        private String title;
+        private String posterPath; // "/xxx.jpg"
+        private String reason;     // GPT가 준 이유
+    }
 }

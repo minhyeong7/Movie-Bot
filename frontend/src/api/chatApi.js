@@ -1,12 +1,24 @@
 import axios from "axios";
+
 import { BASE_URL } from "./header";
 
+export async function fetchChatStart() {
+  const { data } = await axios.get(`${BASE_URL}/api/chat/start`);
+  return data;
+}
 
-
-export const sendChatMessage = async (message) => {
-  const response = await axios.post(`${BASE_URL}/api/chat`, {
-    message: message,
+export async function fetchRecommend(message, history) {
+  const { data } = await axios.post(`${BASE_URL}/api/chat/recommend`, {
+    message,
+    history,
   });
+  return data;
+}
 
-  return response.data.answer;
-};
+export async function clickMovie(title, tmdbId) {
+  const { data } = await axios.post(`${BASE_URL}/api/chat/click`, {
+    title,
+    tmdbId,
+  });
+  return data;
+}
