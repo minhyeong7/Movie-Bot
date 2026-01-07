@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { fetchChatStart, fetchRecommend, clickMovie } from "../api/chatApi";
-
-const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w300";
+import { IMAGE_BASE_URL } from "../api/header";
 
 export default function ChatPage() {
   /**
