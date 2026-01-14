@@ -17,7 +17,7 @@ public class MovieChatService {
 
     public ChatResponse recommend(String userMessage, List<Map<String, String>> history) {
 
-        // 🔥 서버에서 의미 보정 (중요)
+        //  서버에서 의미 보정 (중요)
         String normalizedMessage = normalizeUserMessage(userMessage);
 
         JsonNode gptJson = gptService.recommend3(normalizedMessage, history);

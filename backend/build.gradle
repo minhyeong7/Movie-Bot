@@ -37,6 +37,12 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test' // 테스트 라이브러리
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit 실행 환경
+
+    implementation 'org.springframework.boot:spring-boot-starter-security' // Spring Security
+
+
+    implementation 'org.springframework.boot:spring-boot-starter-validation' // Validation (@NotBlank, @Email, @Valid 등)
+
 }
 
 tasks.named('test') {
