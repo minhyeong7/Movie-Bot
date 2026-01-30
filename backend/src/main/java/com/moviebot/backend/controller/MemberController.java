@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/members")
@@ -31,5 +32,10 @@ public class MemberController {
     }
 
 
+    // 회원  단일 조회
+    @GetMapping("/{id}")
+    public MemberResponse findById(@PathVariable Long id){
+        return memberService.findById(id);
+    }
 
 }

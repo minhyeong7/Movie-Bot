@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +39,14 @@ public class MemberService {
                 .stream() //컬렉션(List, Set 등)을 하나씩 흘려보내면서 처리하는 파이프 즉 for문을 대신하는 최신 문법
                 .map(this::mapToMemberResponse) // member객체를 member response객체로 변환
                 .toList(); // 다시 list로
+    }
+
+    // 회원 단일 조회
+    public MemberResponse findById(Long id){
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("회원없음"));
+
+        return mapToMemberResponse(member);
     }
 
 
