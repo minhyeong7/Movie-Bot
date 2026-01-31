@@ -34,7 +34,7 @@ public class Member {
     private String name;
 
     @Column(nullable = false)
-    private Boolean enabled;
+    private Boolean enabled; // 계정 활성화 여부
 
     @CreatedDate
     @Column(insertable = false, updatable = false, nullable = false)

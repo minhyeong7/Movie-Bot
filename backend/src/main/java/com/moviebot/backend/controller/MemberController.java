@@ -6,9 +6,11 @@ import com.moviebot.backend.entity.Member;
 import com.moviebot.backend.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -36,6 +38,22 @@ public class MemberController {
     @GetMapping("/{id}")
     public MemberResponse findById(@PathVariable Long id){
         return memberService.findById(id);
+    }
+
+    // 회원 수정
+    @PutMapping("/{id}")
+    public MemberResponse update(@PathVariable Long id,@RequestBody MemberRequest memberRequest){
+        return  memberService.updateById(id,memberRequest);
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String,String>> delete(@PathVariable Long id){
+        memberService.deleteById(id);
+
+        return ResponseEntity.ok(
+                Map.of("message","회원이 정상적으로 탈퇴되었습니다")
+        );
     }
 
 }

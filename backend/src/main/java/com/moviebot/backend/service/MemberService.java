@@ -4,6 +4,7 @@ import com.moviebot.backend.dto.request.MemberRequest;
 import com.moviebot.backend.dto.response.MemberResponse;
 import com.moviebot.backend.entity.Member;
 import com.moviebot.backend.repository.MemberRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class MemberService {
 
     // 멤버 생성 회원가입
     public MemberResponse create(MemberRequest memberRequest){
-        var member = Member.builder()
+        Member member = Member.builder()
                 .name(memberRequest.getName())
                 .email(memberRequest.getEmail())
                 .password(passwordEncoder.encode(memberRequest.getPassword()))
@@ -41,10 +42,38 @@ public class MemberService {
                 .toList(); // 다시 list로
     }
 
+    // 회원 탈퇴
+    public void deleteById(Long id){
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("회원 없음"));
+
+        memberRepository.delete(member);
+
+    }
+
+    // 회원 수정
+    @Transactional
+    public MemberResponse updateById(Long id, MemberRequest req) {
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다"));
+
+        member.setName(req.getName());
+        member.setEmail(req.getEmail());
+
+        // 비밀번호는 들어왔을 때만 변경 (학습용으로 깔끔)
+        if (req.getPassword() != null && !req.getPassword().isBlank()) {
+            member.setPassword(passwordEncoder.encode(req.getPassword()));
+        }
+
+        // @Transactional이면 save() 없어도 update 됨 (써도 되지만 생략해도 됨)
+        return mapToMemberResponse(member);
+    }
+
     // 회원 단일 조회
     public MemberResponse findById(Long id){
         Member member = memberRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("회원없음"));
+
 
         return mapToMemberResponse(member);
     }
